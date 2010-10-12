@@ -1,6 +1,18 @@
 function link(link) {
-	rep_top = Math.max(cumulativeOffset(link)[1] + 20, $("control").offsetHeight);
+	var denyIframe = [
+		/^https?:\/\/(www\.)?twitter\.com\b/,
+		/^http:\/\/(www\.)?ustream\.tv\b/, /^http:\/\/ustre\.am\b/,
+		/^http:\/\/blogs\.msdn\.com\/b\/ie\b/
+	];
 	var url = link.href;
+
+	for(var i=0; i<denyIframe.length; i++)
+		if(denyIframe[i].test(url)) return true;
+
+	if(!confirm("Open in twicli?\n(If you select 'Cancel', open new window.)"))
+		return true;
+
+	rep_top = Math.max(cumulativeOffset(link)[1] + 20, $("control").offsetHeight);
 
 	$('rep').style.display = "block";
 	$('reps').innerHTML = '<div id="innerlinkUrl"><a target="_blank" href="'
