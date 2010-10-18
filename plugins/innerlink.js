@@ -12,13 +12,15 @@ function link(link) {
 	if(!confirm("Open in twicli?\n(If you select 'Cancel', open new window.)"))
 		return true;
 
+	user_pick1 = user_pick2 = null;
+
 	rep_top = Math.max(cumulativeOffset(link)[1] + 20, $("control").offsetHeight);
 
-	$('rep').style.display = "block";
 	$('reps').innerHTML = '<div id="innerlinkUrl"><a target="_blank" href="'
 		+ url + '">' + url + '</a></div><iframe id="innerlink" src="' + url
 		+ '" style="width:100%; height: 350px; display:block; background-color:Window;">'
 	$('rep').style.top = rep_top;
-	user_pick1 = user_pick2 = null;
+	$('rep').style.display = "block";
+
 	return false;
 }
