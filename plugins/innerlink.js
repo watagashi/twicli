@@ -1,9 +1,4 @@
 function link(link) {
-	var denyIframe = [
-		/^https?:\/\/(www\.)?twitter\.com\b/,
-		/^http:\/\/(www\.)?ustream\.tv\b/, /^http:\/\/ustre\.am\b/,
-		/^http:\/\/blogs\.msdn\.com\/b\/ie\b/
-	];
 	var url = link.href;
 
 	for(var i=0; i<denyIframe.length; i++)
@@ -24,3 +19,12 @@ function link(link) {
 
 	return false;
 }
+
+var denyIframe = [];
+
+(function(){
+	var s = document.createElement("script");
+	s.src = "http://gist.github.com/636424.txt";
+	s.type = "text/javascript";
+	document.body.appendChild(s);
+}());
