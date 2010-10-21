@@ -12,7 +12,7 @@ press = function(e) {
 		update();
 		return false;
 	}
-	if (st.value.length > 140) {
+	if (st.value.length + footer.length > 140) {
 		alert("This tweet is too long.");
 		return false;
 	}
