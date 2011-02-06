@@ -57,13 +57,13 @@ function twfcFollwersIDsRenew() {
 function twfcRenew(list) {
 	followers_ids_list = list;
 	followers_ids = [];
-	var begin = 0, end = followers_limit;
+	var begin = 0, end = followers_limit - 1;
 	var followers_idx = 0;
 	for (var i = 0; i < list.length; i++) {
 		followers_ids[list[i]] = 1;
 		if(end < i) {
 			writeCookie('followers_ids' + (followers_idx++), list.slice(begin, end).join(","), 3652);
-			begin = end;
+			begin = end + 1;
 			end += followers_limit;
 		}
 	}
