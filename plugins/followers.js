@@ -7,10 +7,13 @@ langResources['Off'] =	['無効','关闭颜色区分'];
 var followers_limit = 200;
 var followers_ids_list = (readCookie('followers_ids') || '');
 var followers_idx = 0, followers_ids_slice;
-while(true) {
-	followers_ids_slice = readCookie('followers_ids' + (followers_idx++)||'')
-	if(!followers_ids_slice) break;
-	followers_ids_list = followers_ids_list.concat(followers_ids_slice);
+if (followers_ids_list == '') {
+	while(true) {
+		followers_ids_slice = readCookie('followers_ids' + (followers_idx++)||'')
+		if(!followers_ids_slice) break;
+		followers_ids_list += "," + followers_ids_slice;
+	}
+	followers_ids_list = followers_ids_list.slice(1)
 }
 followers_ids_list = followers_ids_list != '' ? followers_ids_list.split(',') : [];
 var followers_ids = [];
@@ -57,13 +60,13 @@ function twfcFollwersIDsRenew() {
 function twfcRenew(list) {
 	followers_ids_list = list;
 	followers_ids = [];
-	var begin = 0, end = followers_limit - 1;
+	var begin = 0, end = followers_limit;
 	var followers_idx = 0;
 	for (var i = 0; i < list.length; i++) {
 		followers_ids[list[i]] = 1;
 		if(end < i) {
 			writeCookie('followers_ids' + (followers_idx++), list.slice(begin, end).join(","), 3652);
-			begin = end + 1;
+			begin = end;
 			end += followers_limit;
 		}
 	}
