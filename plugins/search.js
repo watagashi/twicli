@@ -1,7 +1,13 @@
+langResources['Twitter search'] =	['Twitter検索','在Twitter上搜索'];
+langResources['remove tab'] =	['タブを閉じる','关闭标签'];
+langResources['Are you sure to close this tab?'] =	['このタブを閉じてもよろしいですか?','确认要关闭标签？'];
+
+
 var tws_page = 0;
 var tws_rpp = 50; /* results per page */
 var tws_update_timer = null;
 var tws_list = (readCookie('twicli_search_list') || "").split(/\r?\n/);
+var tws_API = 'http://search.twitter.com/search.json';
 tws_list.uniq();
 writeCookie('twicli_search_list', tws_list.join("\n"), 3652);
 function twsSearch(qn, no_switch) {
@@ -31,23 +37,19 @@ function twsSearch(qn, no_switch) {
 	switchTo(myid);
 	tws_update_timer = setInterval(function(){twsSearchUpdate(q)}, 1000*Math.max(updateInterval, 30));
 
-	$('tw2h').innerHTML = '<div style="background-color: #ccc; text-align: right"><a style="size: small; color: red" id="tws-closetab" href="#">[x] remove tab</a></div>';
+	$('tw2h').innerHTML = '<div class="tabcmd tabclose"><a id="tws-closetab" href="#">[x] '+_('remove tab')+'</a></div>';
 	$('tws-closetab').onclick = function(){ closeSearchTab(myid); return false; };
 	tws_page = 0;
-	update_ele2 = loadXDomainScript('http://search.twitter.com/search.json?seq=' + (seq++) +
-							'&q=' + encodeURIComponent(q) + '&rpp=' + tws_rpp +
-							'&callback=twsSearchShow', update_ele2);
-	$("loading").style.display = "block";
+	xds.load_for_tab(tws_API + '?seq=' + (seq++) +
+							'&q=' + encodeURIComponent(q) + '&rpp=' + tws_rpp, twsSearchShow);
 	return false;
 }
 function twsSearchUpdate(q) {
-	update_ele2 = loadXDomainScript('http://search.twitter.com/search.json?seq=' + (seq++) +
-							'&q=' + encodeURIComponent(q) + '&rpp=' + tws_rpp +
-							'&callback=twsSearchShow2', update_ele2);
-	$("loading").style.display = "block";
+	xds.load_for_tab(tws_API + '?seq=' + (seq++) +
+							'&q=' + encodeURIComponent(q) + '&rpp=' + tws_rpp, twsSearchShow2);
 }
 function closeSearchTab(myid) {
-	if (!confirm("Are you sure to close this tab?")) return;
+	if (!confirm(_('Are you sure to close this tab?'))) return;
 	var target = $(myid);
 	target.parentNode.removeChild(target);
 	for (var i = 0; i < tws_list.length; i++)
@@ -79,9 +81,8 @@ function twsSearchShow(res, update) {
 		var next = nextButton('next-search');
 		$("tw2c").appendChild(next);
 		get_next_func = function(){
-			update_ele2 = loadXDomainScript('http://search.twitter.com/search.json' + res.next_page +
-								'&seq=' + (seq++) + '&rpp=' + tws_rpp +
-								'&callback=twsSearchShow', update_ele2);
+			xds.load_for_tab(tws_API + res.next_page +
+								'&seq=' + (seq++) + '&rpp=' + tws_rpp, twsSearchShow);
 		}
 	}
 }
@@ -94,7 +95,7 @@ registerPlugin({
 	},
 	miscTab: function(ele) {
 		var e = document.createElement("div");
-		e.innerHTML = '<form onSubmit="return twsSearch($(\'search_q\').value);">Twitter search : <input type="text" size="15" id="search_q"><input type="image" src="images/go.png"></form>';
+		e.innerHTML = '<form onSubmit="return twsSearch($(\'search_q\').value);"><a href="http://search.twitter.com/" target="_blank">'+_('Twitter search')+'</a> : <input type="text" size="15" id="search_q"><input type="image" src="images/go.png"></form>';
 		ele.appendChild(e);
 		var hr = document.createElement("hr");
 		hr.className = "spacer";
