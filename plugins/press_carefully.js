@@ -1,3 +1,5 @@
+langResources['Sure?'] =	['いいですか?'];
+
 var pressOriginal = press;
 
 press = function(e) {
@@ -13,11 +15,11 @@ press = function(e) {
 		return false;
 	}
 	if (st.value.length + footer.length > 140) {
-		alert("This tweet is too long.");
+		alert(_("This tweet is too long."));
 		return false;
 	}
 
-	if(!confirm( "Sure?" )) return false;
+	if(!confirm(_("Sure?"))) return false;
 
 	return pressOriginal.apply(this, arguments);
 }
