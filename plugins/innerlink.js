@@ -1,5 +1,6 @@
 function link(link) {
 	var url = link.href;
+	var gwt = "http://www.google.com/gwt/x?u=";
 
 	for(var i=0; i<denyIframe.length; i++)
 		if(denyIframe[i].test(url)) return true;
@@ -12,7 +13,8 @@ function link(link) {
 	rep_top = Math.max(cumulativeOffset(link)[1] + 20, $("control").offsetHeight);
 
 	$('reps').innerHTML = '<div id="innerlinkUrl"><a target="_blank" href="'
-		+ url + '">' + url + '</a></div><iframe id="innerlink" src="' + url
+		+ url + '">' + url + '</a></div><iframe id="innerlink" src="' + gwt
+		+ encodeURIComponent(url)
 		+ '" style="width:100%; height: 350px; display:block; background-color:Window;">'
 	$('rep').style.top = rep_top;
 	$('rep').style.display = "block";
