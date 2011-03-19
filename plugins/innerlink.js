@@ -1,3 +1,5 @@
+langResources["Open in twicli?\n(If you select 'Cancel', open new window.)"] =	["twicli の中で開きますか?\n([キャンセル] を選べば新しいウィンドウで開きます。)"];
+
 function link(link) {
 	var url = link.href;
 	var gwt = "http://www.google.com/gwt/x?u=";
@@ -5,7 +7,7 @@ function link(link) {
 	for(var i=0; i<denyIframe.length; i++)
 		if(denyIframe[i].test(url)) return true;
 
-	if(!confirm("Open in twicli?\n(If you select 'Cancel', open new window.)"))
+	if(!confirm(_("Open in twicli?\n(If you select 'Cancel', open new window.)")))
 		return true;
 
 	user_pick1 = user_pick2 = null;
