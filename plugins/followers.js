@@ -6,12 +6,11 @@ langResources['Off'] =	['無効','关闭颜色区分'];
 
 var followers_ids_list = [];
 var followers_ids = [];
-xds.load(twitterAPI + 'followers/ids.json', twfcRenewAuto);
-function twfcRenewAuto(list) {
-	twfcRenew(list, true);
-}
 
 registerPlugin({
+	auth: function() {
+		xds.load(twitterAPI + 'followers/ids.json', twfcRenewAuto);
+	},
 	miscTab: function(ele) {
 		var e = document.createElement("div");
 		e.innerHTML = '<form onSubmit="twfcFollwersIDsRenew(); return false;">'+_('Color followers')+': <span id="followers_status">'+(followers_ids_list.length?"on("+followers_ids_list.length+")":"off")+'</span> <input type="submit" value="'+_('Renew')+'"><input type="button" onClick="twfcFollwersIDsClear()" value="'+_('Off')+'"> <a href="javascript:alert(\''+_('Tweets coloring')+':\\n  '+_('follower: black  non-follower: blue')+'\')">[?]</a></form>';
@@ -57,4 +56,7 @@ function twfcRenew(list, notUpdateFollowersStatus) {
 	if (notUpdateFollowersStatus) return;
 	var status = document.getElementById("followers_status");
 	if (status) status.innerHTML = "on (" + list.length + ")";
+}
+function twfcRenewAuto(list) {
+	twfcRenew(list, true);
 }
