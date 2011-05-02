@@ -5,13 +5,11 @@ langResources['Renew'] =	['更新','更新关注者数据'];
 langResources['Off'] =	['無効','关闭颜色区分'];
 
 var followers_ids_list = [];
+var followers_ids = [];
 xds.load(twitterAPI + 'followers/ids.json', twfcRenewAuto);
 function twfcRenewAuto(list) {
 	twfcRenew(list, true);
 }
-var followers_ids = [];
-for (var i = 0; i < followers_ids_list.length; i++)
-	followers_ids[followers_ids_list[i]] = 1;
 
 registerPlugin({
 	miscTab: function(ele) {
