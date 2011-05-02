@@ -5,16 +5,14 @@ langResources['Renew'] =	['更新','更新关注者数据'];
 langResources['Off'] =	['無効','关闭颜色区分'];
 
 var followers_limit = 200;
-var followers_ids_list = (readCookie('followers_ids') || '');
+var followers_ids_list = '';
 var followers_idx = 0, followers_ids_slice;
-if (followers_ids_list == '') {
-	while(true) {
-		followers_ids_slice = readCookie('followers_ids' + (followers_idx++)||'')
-		if(!followers_ids_slice) break;
-		followers_ids_list += "," + followers_ids_slice;
-	}
-	followers_ids_list = followers_ids_list.slice(1)
+while(true) {
+	followers_ids_slice = readCookie('followers_ids' + (followers_idx++)||'')
+	if(!followers_ids_slice) break;
+	followers_ids_list += "," + followers_ids_slice;
 }
+followers_ids_list = followers_ids_list.slice(1)
 followers_ids_list = followers_ids_list != '' ? followers_ids_list.split(',') : [];
 var followers_ids = [];
 for (var i = 0; i < followers_ids_list.length; i++)
@@ -58,6 +56,7 @@ function twfcFollwersIDsRenew() {
 	xds.load(twitterAPI + 'followers/ids.json', twfcRenew);
 }
 function twfcRenew(list) {
+	twfcFollwersIDsClear();
 	followers_ids_list = list;
 	followers_ids = [];
 	var begin = 0, end = followers_limit;
@@ -71,7 +70,6 @@ function twfcRenew(list) {
 		}
 	}
 	writeCookie('followers_ids' + (followers_idx++), list.slice(begin).join(","), 3652);
-	writeCookie('followers_ids', list.join(","), 3652);
 	var status = document.getElementById("followers_status");
 	if (status) status.innerHTML = "on (" + list.length + ")";
 }
