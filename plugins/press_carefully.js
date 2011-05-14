@@ -1,4 +1,4 @@
-langResources['Sure?'] =	['„ÅÑ„ÅÑ„Åß„Åô„Åã?'];
+langResources['Sure?'] =	['Ç¢Ç¢Ç≈Ç∑Ç©?'];
 
 var pressOriginal = press;
 
@@ -10,7 +10,6 @@ press = function(e) {
 	var st = document.frm.status;
 	if (!key_press_detected) st.value = st.value.replace(/\n/g, "");
 	if (st.value == '') {
-		$("loading").style.display = "block";
 		update();
 		return false;
 	}
