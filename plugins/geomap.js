@@ -145,6 +145,7 @@ registerPlugin({
 		if (!geomap) return alert("placemap not found!!");
 		
 		geomap.onclick = function() {
+			if (!rs.place.bounding_box) return true;
 			display_placemap(rs.place, geomap);
 			return false;
 		};
