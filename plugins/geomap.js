@@ -174,7 +174,6 @@ function make_geo_placemap(place) {
 	var latlng = new google.maps.LatLng(la, lo);
 	var map = new google.maps.Map(document.getElementById("map_canvas"),
 		{zoom: 13, center: latlng, mapTypeId: google.maps.MapTypeId.ROADMAP});
-	var polygon = new google.maps.Polygon({position: latlng, map: map});
 }
 
 document.write('<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>');
