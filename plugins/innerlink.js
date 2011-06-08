@@ -28,7 +28,7 @@ var denyIframe = [];
 
 (function(){
 	var s = document.createElement("script");
-	s.src = "http://gist.github.com/636424.txt";
+	s.src = "https://raw.github.com/gist/636424/deny_iframe.js";
 	s.type = "text/javascript";
 	document.body.appendChild(s);
 }());
