@@ -96,6 +96,20 @@ registerPlugin({
 						addThumbnail(elem, x.thumbnail, url);
 					});
 		}
+		else if (url.match(/^(http:\/\/slidesha\.re\/\w+)/)) {
+			xds.load("http://atsushaa.appspot.com/untiny/get?url=" + encodeURIComponent(RegExp.$1),
+					function(hash){
+						for (var shortUrl in hash)
+							if (hash.hasOwnProperty(shortUrl))
+								xds.load("http://www.slideshare.net/api/oembed/2?url="
+									+ hash[shortUrl] + "&format=jsonp",
+									function(x) {
+										addThumbnail(elem, x.thumbnail, url);
+									});
+					},
+			null, 0);
+
+		}
 	}
 });
 
