@@ -3,6 +3,7 @@ langResources["Open in twicli?\n(If you select 'Cancel', open new window.)"] =	[
 function link(link) {
 	var url = link.href;
 	var gwt = "http://www.google.com/gwt/x?u=";
+	var win_h = window.innerHeight || document.documentElement.clientHeight;
 
 	for(var i=0; i<denyIframe.length; i++)
 		if(denyIframe[i].test(url)) return true;
@@ -17,9 +18,11 @@ function link(link) {
 	$('reps').innerHTML = '<div id="innerlinkUrl"><a target="_blank" href="'
 		+ url + '">' + url + '</a></div><iframe id="innerlink" src="' + gwt
 		+ encodeURIComponent(url)
-		+ '" style="width:100%; height: 350px; display:block; background-color:Window;">'
+		+ '" style="border:0; width:100%; height:'+Math.ceil(win_h*0.5)
+		+'px; display:block; background-color:Window;">';
 	$('rep').style.top = rep_top;
 	$('rep').style.display = "block";
+	scrollToDiv($('rep'));
 
 	return false;
 }
