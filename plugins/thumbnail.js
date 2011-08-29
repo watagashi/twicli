@@ -1,5 +1,14 @@
 registerPlugin({
-	newMessageElement: function(elem) {
+	newMessageElement: function(elem, tw) {
+		if (tw.entities && tw.entities.media) {
+			for (var i = 0; i < tw.entities.media.length; i++) {
+				if (tw.entities.media[i].type == "photo") {
+					addThumbnail(elem,
+						tw.entities.media[i].media_url + ":thumb",
+						tw.entities.media[i].media_url + ":large");
+				}
+			}
+		}
 		var status = null;
 		for(var i = 0; i < elem.childNodes.length; i++) {
 			status = elem.childNodes[i];
@@ -13,6 +22,8 @@ registerPlugin({
 	},
 	replaceUrl: function(elem, link, url) {
 		var flickr_id;
+		if (link.thumbnailed && link.thumbnailed == url) return;
+		link.thumbnailed = url;
 		if (url.indexOf(twitterURL) == 0 || url.indexOf("javascript:") == 0)
 			return; // skip @... or #...
 		if (url.match(/^http:\/\/twitpic\.com\/(\w+)/)) {
@@ -56,7 +67,7 @@ registerPlugin({
 					},
 					null, 1, 'jsoncallback');
 		}
-		else if (url.match(/^(http:\/\/plixi.com\/p\/\d+)/)) {
+		else if (url.match(/^(http:\/\/lockerz.com\/s\/\d+|http:\/\/plixi.com\/p\/\d+)/)) {
 			addThumbnail(elem, 'http://api.plixi.com/api/TPAPI.svc/imagefromurl?size=thumbnail&url='+url, url);
 		}
 		else if (url.match(/^http:\/\/img.ly\/(\w+)/)) {
@@ -65,7 +76,7 @@ registerPlugin({
 		else if (url.match(/^http:\/\/ow.ly\/i\/(\w+)/)) {
 			addThumbnail(elem, 'http://static.ow.ly/photos/thumb/'+RegExp.$1+".jpg", url);
 		}
-		else if (url.match(/^(http:\/\/gyazo.com\/\w+\.png)/)) {
+		else if (url.match(/^(http:\/\/gyazo.com\/\w+)/)) {
 			addThumbnail(elem, 'http://gyazo-thumbnail.appspot.com/thumbnail?url='+url, url);
 		}
 		else if (url.match(/^http:\/\/(?:www\.youtube\.com\/watch\?.*v=|youtu\.be\/)([\w\-]+)/)) {
@@ -73,13 +84,32 @@ registerPlugin({
 			addThumbnail(elem, 'http://i.ytimg.com/vi/' + id + '/default.jpg', url);
 		}
 		else if (url.match(/^http:\/\/(?:www\.nicovideo\.jp\/watch|nico\.ms)\/([a-z][a-z])(\d+)$/)) {
-			if (RegExp.$1 == "lv") return; // live thumbnail is not supported
+			if (RegExp.$1 == "lv" || RegExp.$1 == "nw") return; // live/news thumbnail is not supported
 			var id = RegExp.$2;
 			var host = parseInt(id)%4 + 1;
 			addThumbnail(elem, 'http://tn-skr' + host + '.smilevideo.jp/smile?i=' + id, url);
 		}
-		else if (url.match(/^http:\/\/instagr\.am\/p\/[\w\-]+\/?$/)) {
-			addThumbnail(elem, 'http://thumbnail-image.appspot.com/thumbnail?url=' + url, url);
+		else if (url.match(/^(http:\/\/instagr\.am\/p\/[\w\-]+)\/?$/)) {
+			addThumbnail(elem, RegExp.$1+'/media/?size=t', url);
+		}
+		else if (url.match(/^(http:\/\/picplz.com\/\w+)/)) {
+			addThumbnail(elem, url+'/thumb/150', url);
+		}
+		else if (url.match(/^http:\/\/photozou\.jp\/photo\/show\/\d+\/(\d+)/)) {
+			addThumbnail(elem, "http://art"+Math.floor(Math.random()*40+1)+".photozou.jp/bin/photo/"+
+							RegExp.$1 +"/org.bin?size=120", url);
+		}
+		else if (url.match(/^(https?:\/\/www\.slideshare\.net\/[-_0-9a-zA-Z]+\/[-_0-9a-zA-Z]+)/)) {
+			xds.load("http://www.slideshare.net/api/oembed/2?url=" + RegExp.$1 + "&format=jsonp",
+					function(x) {
+						addThumbnail(elem, x.thumbnail, url);
+					});
+		}
+		else if (url.match(/^http:\/\/p\.twipple\.jp\/(\w+)/)) {
+			addThumbnail(elem, 'http://p.twipple.jp/show/thumb/' + RegExp.$1, url);
+		}
+		else if (url.match(/^(http:\/\/moby\.to\/\w+)/)) {
+			addThumbnail(elem, RegExp.$1+':thumbnail', url);
 		}
 	}
 });

@@ -13,7 +13,7 @@ press = function(e) {
 		update();
 		return false;
 	}
-	if (st.value.length + footer.length > 140) {
+	if (parseInt($("counter").innerHTML,10) < 0) {
 		alert(_("This tweet is too long."));
 		return false;
 	}

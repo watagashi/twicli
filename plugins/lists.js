@@ -4,6 +4,7 @@ langResources['Please specify a list like "@user/list".'] =	['リストを"@user
 langResources['Lists'] =	['リスト','列表'];
 langResources['subscribing lists by twicli'] =	['twicliで購読中のリスト','用twicli订阅的lists'];
 langResources['Initialization failed; regexp.js may not be loaded.'] =	['初期化に失敗しました。regexp.jsがロードされていないようです。','初始化失败。regexp.js可能无法加载。'];
+langResources['Reload'] =	['更新','更新'];
 
 
 var last_list = ['',''];
@@ -16,18 +17,25 @@ function twlGetListInfo(name) {
 	if (name[0] == "#") name = name.substr(1);
 	var del = name.indexOf('/');
 	var user = name.substr(0, del), slug = name.substr(del+1);
+	var lists_users_str = readCookie("lists_users." + name);
+	if (lists_users_str) {
+		lists_users[name] = lists_users_str.split(",");
+		twlUpdateListsList();
+		return;
+	}
 	lists_users[name] = [];
-	xds.load_for_tab(twitterAPI + user + '/' + slug + '/members.json',
+	xds.load_for_tab(twitterAPI + 'lists/members.json?owner_screen_name=' + user + '&slug=' + slug,
 		function twlListMember (info) {
 			if (info.error) {
 				alert(info.error);
 				twlUnsubscribeList(name);
 				return;
 			}
-			lists_users[name] = lists_users[name].concat(info.users.map(function(u){ delete u.status; return u; }));
-			if (info.next_cursor) {
-				xds.load_for_tab(twitterAPI + user + '/' + slug + '/members.json?cursor=' + info.next_cursor, twlListMember);
+			lists_users[name] = lists_users[name].concat(info.users.map(function(u){ return u.screen_name; }));
+			if (info.next_cursor_str && info.next_cursor_str != "0" || info.next_cursor) {
+				xds.load_for_tab(twitterAPI + 'lists/members.json?owner_screen_name=' + user + '&slug=' + slug + '&cursor=' + (info.next_cursor_str || info.next_cursor), twlListMember);
 			} else {
+				writeCookie("lists_users." + name, lists_users[name].join(","), 3652);
 				twlUpdateListsList();
 			}
 		});
@@ -52,6 +60,7 @@ function twlUnsubscribeList(name) {
 		}
 	}
 	writeCookie("lists", lists_to_get.join("\n"), 3652);
+	deleteCookie("lists_users." + name);
 	twlUpdateListsList();
 }
 function twlToggleListsInTL(a, ele) {
@@ -75,7 +84,7 @@ function twlToggleListsInTL(a, ele) {
 }
 
 function twlGetLists(user) {
-	xds.load_for_tab(twitterAPI + user + '/lists/memberships.json?seq=' + (seq++), twlFollowers);
+	xds.load_for_tab(twitterAPI + 'lists/memberships.json?seq=' + (seq++) + '&screen_name=' + user, twlFollowers);
 }
 function twlFollowers(res) {
 	if (selected_menu.id != "user") return;
@@ -85,7 +94,7 @@ function twlFollowers(res) {
 		return '<div> <a target="_blank" href="' + twitterURL + a.uri.substr(1) + '" onclick="return twlGetListStatus(\'' + a.uri.substr(1) + '\')">' + a.full_name + '</a> (' +
 				 a.member_count + ' / ' + a.subscriber_count + ')</div>';
 	}).join("");
-	xds.load_for_tab(twitterAPI + last_user + '/lists.json?seq=' + (seq++), twlLists);
+	xds.load_for_tab(twitterAPI + 'lists.json?seq=' + (seq++) + '&screen_name=' + last_user, twlLists);
 }
 function twlLists(res) {
 	if (selected_menu.id != "user") return;
@@ -100,8 +109,10 @@ function twlGetListStatus(list) {
 	twl_page = 0;
 	if (selected_menu.id == "user") fav_mode = 9;
 	$("tw2c").innerHTML = "";
-	xds.load_for_tab(twitterAPI + last_list[0] + '/lists/' + last_list[1] + '/statuses.json?' +
-				'seq=' + (seq++) + '&per_page=' + max_count_u, twlShowListStatus);
+	xds.load_for_tab(twitterAPI + 'lists/statuses.json?seq=' + (seq++)
+			+ '&owner_screen_name=' + last_list[0] + '&slug=' + last_list[1]
+			+ '&include_entities=true&include_rts=true&per_page=' + max_count_u,
+			twlShowListStatus);
 	return false;
 }
 function twlShowListStatus(tw) {
@@ -114,9 +125,10 @@ function twlShowListStatus(tw) {
 	var next = nextButton('next-list');
 	$("tw2c").appendChild(next);
 	get_next_func = function(){
-	xds.load_for_tab(twitterAPI + last_list[0] + '/lists/' + last_list[1] +
-							'/statuses.json?seq=' + (seq++) + '&per_page=' + max_count_u +
-							'&max_id=' + tw[tw.length-1].id, twlShowListStatus);
+	xds.load_for_tab(twitterAPI + 'lists/statuses.json?seq=' + (seq++)
+			+ '&owner_screen_name=' + last_list[0] + '&slug=' + last_list[1]
+			+ '&include_entities=true&include_rts=true&per_page=' + max_count_u
+			+ '&max_id=' + tw[tw.length-1].id, twlShowListStatus);
 	}
 }
 
@@ -128,8 +140,7 @@ function twlUpdateListsList() {
 		var users = lists_users[a];
 		if (!users) return "";
 		return "\\"/*supress closeTab*/ + a.substr(a.indexOf('/')+1) + "\\list#"/*info*/ + a +
-			':^' + users.map(function(u){ return u.screen_name }).join('$|^') + '$' +
-			(l[0] == '#' ? '::1'/*don't display in TL*/ : '');
+			':^' + users.join('$|^') + '$' + (l[0] == '#' ? '::1'/*don't display in TL*/ : '');
 	}).join("\n");
 	if (typeof(setRegexp) == "function") {
 		setRegexp(pickup_regexp);
@@ -155,8 +166,16 @@ function twlUpdateMisc() {
 			'<label for="chk-lists-'+a.replace('/','-')+'">TL</label>&nbsp;&nbsp;'+
 			' <a class="close" href="javascript:twlUnsubscribeList(\''+a+'\')">'+
 			'<img style="position: relative; top: 2px;" src="images/clr.png"></a>'+
+			'<input type="button" onclick="twlReloadListInfo(\'' + a + '\')" '+
+					'value="'+ _('Reload') + '"></a>'+
 			'</li>' : a
 	}).join("");
+}
+
+function twlReloadListInfo(name) {
+	deleteCookie("lists_users." + name);
+	twlGetListInfo(name);
+	twlUpdateMisc();
 }
 
 registerPlugin({
@@ -176,7 +195,7 @@ registerPlugin({
 		$("pref").appendChild(e);
 		twlUpdateMisc();
 	},
-	init: function() {
+	auth: function() {
 		lists_to_get.map(twlGetListInfo);
 	},
 	regexp_switched: function(tab) {

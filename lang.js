@@ -35,6 +35,7 @@ var langResources = {
 	'Post length counter':	['残り文字数を表示','显示发言的剩余字数'],
 	'Post with ctrl/shift+enter':	['ctrl+enter/shift+enterで発言','敲击Ctrl+回车或Shift+回车来发言'],
 	'Enable GeoTagging':	['ジオタグ(位置情報)を有効に','开启地理标签（方位信息）'],
+	'Use HTTPS':	['HTTPSを使用','使用HTTPS'],
 	'Footer':	['フッター','加尾修饰'],
 	'Plugins':	['プラグイン','插件'],
 	'user stylesheet':	['ユーザスタイルシート','用户自定义样式表'],
@@ -55,5 +56,6 @@ var langResources = {
 	'Are you sure to block $1?': ['本当に $1 をブロックしますか?','真的要把 $1 加入黑名单么？'],
 	'Are you sure to report $1 as spam?': ['本当に $1 をスパムとして報告しますか?','真的要举报 $1 么？'],
 	'An external plugin is specified. This plugin can fully access to your account.\nAre you sure to load this?': ['外部プラグインが指定されています。このプラグインはあなたのアカウントに自由にアクセス可能になります。本当にロードしてもよろしいですか?','你欲加载外部地址上的插件。这个插件将自由访问你的帐号信息。确认加载？'],
+	'Cannot access to direct messages. Please re-auth twicli for DM access.': ['ダイレクトメッセージにアクセスできません。お手数ですが再度認証を行ってください。'],
 	'An old HTML file is loaded. Please reload it. If the problem is not fixed, please try erasing caches.': ['古いHTMLファイルがロードされています。リロードしてみて下さい。それでも解決しない場合はキャッシュを削除してみて下さい。']
 };
