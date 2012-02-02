@@ -1,5 +1,3 @@
-langResources['blocking'] =	['ブロックしている'];
-
 function switchBlocking() {
 	cur_page = 1;
 	fav_mode = 9;
@@ -52,22 +50,10 @@ function twUsers(tw) {
 		};
 	}
 }
-function makeUserInfoHTML(user) {
-	return '<table><tr><td><a target="twitter" href="' + twitterURL + 'account/profile_image/'+
-			user.screen_name+'"><img class="uicon2" src="' + user.profile_image_url + '"></a></td><td id="profile"><div>' +
-			(user.verified ? '<img class="verified" alt="verified" src="images/verified.png">' : '') +
-			(user.protected ? '<img class="lock" alt="lock" src="http://assets0.twitter.com/images/icon_lock.gif">' : '') +
-			'<b>' + user.screen_name + '</b> / <b>' + user.name + '</b></div>' +
-			(user.location ? '<div><b>'+_('Location')+'</b>: ' + user.location + '</div>' : '') +
-			(user.url ? '<div><b>'+_('URL')+'</b>: <a target="_blank" href="' + user.url + '" onclick="return link(this);">' + user.url + '</a></div>' : '') +
-			'<div>' + (user.description ? user.description : '<br>') +
-			'</div><b><a href="' + twitterURL + user.screen_name + '/following" onclick="switchFollowing();return false;">' + user.friends_count + '<small>'+_('following')+'</small></a> / ' + 
-						'<a href="' + twitterURL + user.screen_name + '/followers" onclick="switchFollower();return false;">' + user.followers_count + '<small>'+_('followers')+'</small></a>' +
-						(user.screen_name == myname ?  ' / <a href="' + twitterURL + user.screen_name + '" onclick="switchBlocking();return false;"><small>'+_('blocking')+'</small></a>' : '') +
-			'<br><a href="' + twitterURL + user.screen_name + '" onclick="switchStatus();return false;">' + user.statuses_count + '<small>'+_('tweets')+'</small></a> / ' +
-						'<a href="' + twitterURL + user.screen_name + '/favorites" onclick="switchFav();return false;">' + user.favourites_count + '<small>'+_('favs')+'</small></a></b>' +
-			'</td></tr></table>'+
-			(user.screen_name != myname ? '<a class="button upopup" href="#" onClick="userinfo_popup_menu(\'' + user.screen_name + '\',' + user.id + ', this); return false;"><small><small>▼</small></small></a>' : '')+
-			'<a target="twitter" href="' + twitterURL + user.screen_name + '">[Twitter]</a>' +
-			'<a href="' + twitterURL + user.screen_name + '/following/tweets" onclick="switchFollowingTL();return false;">[TL]</a> ';
-}
+
+registerPlugin({
+	newUserInfoElement: function(ele, user) {
+		if (user.screen_name != myname) return;
+		ele.innerHTML += '<a href="' + twitterURL + user.screen_name + '" onclick="switchBlocking();return false;">[Blocking]</a>';
+	}
+});
