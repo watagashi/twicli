@@ -22,14 +22,14 @@ function switchFollower() {
 }
 
 var twUserIds = [];
-var twUsers_per_users = 100;
+var max_users_lookup = 100;
 
 function twUsersLookup(tw) {
 
 	if (tw.error) return error(tw.error);
 	twUserIds = tw.ids||tw;
 	xds.load_for_tab(twitterAPI + 'users/lookup.json' +
-			'?user_id=' + twUserIds.splice(0, twUsers_per_users).join() +
+			'?user_id=' + twUserIds.splice(0, max_users_lookup).join() +
 			'&include_entities=true&suppress_response_codes=true', twUsers);
 }
 function twUsers(tw) {
@@ -47,7 +47,7 @@ function twUsers(tw) {
 		get_next_func = function() {
 			cur_page++;
 			xds.load_for_tab(twitterAPI + 'users/lookup.json' +
-					'?user_id=' + twUserIds.splice(0, twUsers_per_users).join() +
+					'?user_id=' + twUserIds.splice(0, max_users_lookup).join() +
 					'&include_entities=true&suppress_response_codes=true', twUsers);
 		};
 	}
