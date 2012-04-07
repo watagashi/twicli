@@ -7,10 +7,13 @@ langResources['Initialization failed; regexp.js may not be loaded.'] =	['初期�
 langResources['Reload'] =	['更新','更新'];
 langResources['Add this user to list "$1"'] =	['ユーザをリスト"$1"に追加','把这个用户追加到名单"$1"'];
 langResources['Remove this user from list "$1"'] =	['ユーザをリスト"$1"から削除', '从名单"$1"删除这个用户'];
+langResources['Update tweets in list tab automatically'] = 	['リストタブのツイートを自動更新', '自动地提取所有发言'];
 
 
+var list_auto_update = parseInt(readCookie('list_auto_update') || 0);
 var last_list = ['',''];
 var twl_page = 0;
+var twl_update_timer = null;
 var lists_to_get = readCookie("lists");
 lists_to_get = lists_to_get ? lists_to_get.split("\n") : [];
 var lists_users = {};
@@ -107,30 +110,45 @@ function twlLists(res) {
 }
 
 function twlGetListStatus(list) {
-	last_list = list.split("/");
 	twl_page = 0;
+	if (twl_update_timer) clearInterval(twl_update_timer);
+	if (selected_menu.id == "user") {
+		$("tw2c").innerHTML = "";
+	} else {
+		if (list_auto_update)
+			twl_update_timer = setInterval(function(){twlGetListStatusUpdate(list,true)}, 
+				1000*Math.max(updateInterval, 30));
+	}
+	twlGetListStatusUpdate(list);
+	return false;
+}
+function twlGetListStatusUpdate(list, update) {
+	last_list = list.split("/");
 	if (selected_menu.id == "user") fav_mode = 9;
-	$("tw2c").innerHTML = "";
 	xds.load_for_tab(twitterAPI + 'lists/statuses.json?seq=' + (seq++)
 			+ '&owner_screen_name=' + last_list[0] + '&slug=' + last_list[1]
 			+ '&include_entities=true&include_rts=true&per_page=' + max_count_u,
-			twlShowListStatus);
-	return false;
+			update ? twlShowListStatus2 : twlShowListStatus);
 }
-function twlShowListStatus(tw) {
+function twlShowListStatus2(tw) {
+	twlShowListStatus(tw, true);
+}
+function twlShowListStatus(tw, update) {
 	var tmp = $("tmp");
 	if (tmp) tmp.parentNode.removeChild(tmp);
-	if (++twl_page == 1) {
+	if (!update && ++twl_page == 1) {
 		$('tw2c').innerHTML = '';
 	}
-	twShowToNode(tw, $("tw2c"), false, twl_page > 1);
-	var next = nextButton('next-list');
-	$("tw2c").appendChild(next);
-	get_next_func = function(){
-	xds.load_for_tab(twitterAPI + 'lists/statuses.json?seq=' + (seq++)
-			+ '&owner_screen_name=' + last_list[0] + '&slug=' + last_list[1]
-			+ '&include_entities=true&include_rts=true&per_page=' + max_count_u
-			+ '&max_id=' + tw[tw.length-1].id, twlShowListStatus);
+	twShowToNode(tw, $("tw2c"), false, !update && twl_page > 1, update, false, update);
+	if (!update) {
+		var next = nextButton('next-list');
+		$("tw2c").appendChild(next);
+		get_next_func = function(){
+		xds.load_for_tab(twitterAPI + 'lists/statuses.json?seq=' + (seq++)
+				+ '&owner_screen_name=' + last_list[0] + '&slug=' + last_list[1]
+				+ '&include_entities=true&include_rts=true&per_page=' + max_count_u
+				+ '&max_id=' + tw[tw.length-1].id, twlShowListStatus);
+		}
 	}
 }
 
@@ -208,6 +226,10 @@ function twlEditUserInList(list, user, f) {
 			'?owner_screen_name=' + l[0] + '&slug=' + l[1] + '&screen_name=' + user,
 		function(){ twlReloadListInfo(list); });
 }
+function twlSetAutoUpdate(update) {
+	list_auto_update = update;
+	writeCookie('list_auto_update', list_auto_update?1:0, 3652);
+}
 
 function twlReloadListInfo(name) {
 	deleteCookie("lists_users." + name);
@@ -215,7 +237,13 @@ function twlReloadListInfo(name) {
 	twlUpdateMisc();
 }
 
+
 registerPlugin({
+	switchTo: function(m) {
+		if (!twl_update_timer) return;
+		clearInterval(twl_update_timer);
+		twl_update_timer = null;
+	},
 	newUserInfoElement: function(ele, user) {
 		ele.innerHTML += '<a href="' + twitterURL + user.screen_name + '/lists/memberships" onclick="twlGetLists(\'' + user.screen_name + '\'); return false;">[Lists]</a>';
 	},
@@ -225,7 +253,11 @@ registerPlugin({
 			'<form id="lists_pref" style="display:none" onSubmit="twlSubscribeList($(\'newList\').value); return false;">' +
 			_('subscribing lists by twicli')+':<ul id="lists_list">' +
 			'</ul><ul><li><input type="text" size="15" id="newList" value="">' +
-			'<input type="submit" value="'+_('Add')+'"></li></ul></form>';
+			'<input type="submit" value="'+_('Add')+'"></li></ul><p>' +
+			'<input id="auto_update" type="checkbox" onchange="twlSetAutoUpdate(this.value)"' +
+			(list_auto_update ? ' checked' : '') + '>' +
+			'<label for="auto_update">' + _('Update tweets in list tab automatically') +
+			'</label></form>';
 		$("pref").appendChild(e);
 		twlUpdateMisc();
 	},
@@ -235,7 +267,10 @@ registerPlugin({
 	regexp_switched: function(tab) {
 		if (!tab.info || tab.info.indexOf('list#') != 0) return;
 		var a = tab.info.substr(5);
-		$('tw2h').innerHTML = '<div class="tabcmd"><a id="list_get_all" href="'+twitterURL+a+'" onclick="twlGetListStatus(\''+a+'\');return false">'+_('get all tweets')+'</a></div>';
+		if (list_auto_update)
+			twlGetListStatus(a);
+		else
+			$('tw2h').innerHTML = '<div class="tabcmd"><a id="list_get_all" href="'+twitterURL+a+'" onclick="twlGetListStatus(\''+a+'\');return false">'+_('get all tweets')+'</a></div>';
 	},
 	userinfo_popup: function(ele, user, id) {
 		twlUpdateUserPopup(ele, user);
