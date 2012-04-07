@@ -32,6 +32,7 @@ function twUsersLookup(tw) {
 }
 function twUsers(tw) {
 	if (tw.error) return error(tw.error);
+	if (tw.errors) return error(tw.errors[0].message, tw.errors);
 	var tmp = $("tmp");
 	if (tmp && tmp.parentNode) tmp.parentNode.removeChild(tmp);
 	var tw2 = tw.map(function(x){
