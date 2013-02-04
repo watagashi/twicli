@@ -6,7 +6,7 @@ registerPlugin({
 				if (tw.entities.media[i].type == "photo") {
 					addThumbnail(elem,
 						tw.entities.media[i].media_url + ":thumb",
-						tw.entities.media[i].media_url + ":large");
+						tw.entities.media[i].expanded_url);
 				}
 			}
 		}
@@ -106,7 +106,7 @@ registerPlugin({
 		else if (url.match(/^(https?:\/\/www\.slideshare\.net\/[-_0-9a-zA-Z]+\/[-_0-9a-zA-Z]+)/)) {
 			xds.load("http://www.slideshare.net/api/oembed/2?url=" + RegExp.$1 + "&format=jsonp",
 					function(x) {
-						addThumbnail(elem, x.thumbnail, url);
+						addThumbnail(elem, (x.thumbnail.substr(0,2) == '//' ? 'http:' : '' )+ x.thumbnail, url);
 					});
 		}
 		else if (url.match(/^http:\/\/p\.twipple\.jp\/(\w+)/)) {
@@ -114,6 +114,13 @@ registerPlugin({
 		}
 		else if (url.match(/^(http:\/\/moby\.to\/\w+)/)) {
 			addThumbnail(elem, RegExp.$1+':thumbnail', url);
+		}
+		else if (url.match(/^http:\/\/via\.me\/-(\w+)/)) {
+			xds.load("http://thumbnail-url.appspot.com/url?url=https://api.via.me/v1/posts/" + RegExp.$1 + "%3fclient_id%3demplp4kfmy2ud072l3fbc70g",
+					function(x) {
+						if (x && x.response && x.response.post && x.response.post.thumb_url)
+							addThumbnail(elem, x.response.post.thumb_url, url);
+					});
 		}
 	}
 });
