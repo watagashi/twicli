@@ -2,7 +2,7 @@ function switchBlocking() {
 	cur_page = 1;
 	fav_mode = 9;
 	$("tw2c").innerHTML = "";
-	xds.load_for_tab(twitterAPI + 'blocks/blocking/ids.json?suppress_response_codes=true', twUsersLookup);
+	xds.load_for_tab(twitterAPI + 'blocks/ids.json?suppress_response_codes=true', twUsersLookup);
 }
 function switchFollowing() {
 	cur_page = 1;
@@ -32,7 +32,7 @@ function twUsersLookup(tw) {
 }
 function twUsers(tw) {
 	if (tw.error) return error(tw.error);
-	if (tw.errors) return error(tw.errors[0].message, tw.errors);
+	if (tw.errors) return error('', tw);
 	var tmp = $("tmp");
 	if (tmp && tmp.parentNode) tmp.parentNode.removeChild(tmp);
 	var tw2 = tw.map(function(x){
